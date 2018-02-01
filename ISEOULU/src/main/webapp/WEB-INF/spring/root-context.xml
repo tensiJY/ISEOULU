@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<context:annotation-config />
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	    <property name="driverClassName" value="net.sf.log4jdbc.DriverSpy"/>
+	    <property name="url" value="jdbc:log4jdbc:oracle:thin:@localhost:1521:orcl" />
+	    <property name="username" value="trip"/>
+	    <property name="password" value="trip"/>
+ 	</bean>
+ 			
+		<!-- 사용할 컨넥션 풀과 연결한다 . -->
+		<!-- mappers 폴더에 넣으면 자동적으로 로딩됩니다. 단.. XXXXXXMapper.xml 형식으로 -->
+ 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:/myBatis-config.xml" />
+		<property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml"/>
+		<property name="dataSource" ref="dataSource" />
+	</bean>  
+ 	 
+ 	 	<!-- myBatis를 이용해서 컨넥션을 처리할 빈 처리(마이바티스에서 사용할 컨넥션을 빈처리) -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>	
+	
+		<!-- 파일 업로드 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="1000000000" />
+        <property name="maxInMemorySize" value="1000000000" />
+		<property name="defaultEncoding" value="UTF-8" />
+    </bean>
+    
+    	<!-- 만들어진 DAO를 자동 주입하기 위한 bean 선언 -->
+    	<!-- 자동 주입을 할때 위에서 설정한 컨넥션을 필요로 하고 있기 때문에 이것을 등록해서 주입되도록 설정한다. -->
+    <bean id="mainDAO" class="com.seoul.DAO.MainDAO">
+		<property name="sqlSessionTemplate" ref="sqlSession" />
+	</bean>
+		
+	<bean id="HotelDAO" class="com.seoul.DAO.HotelDAO">
+		<property name="sqlSessionTemplate" ref="sqlSession" />
+	</bean>
+	
+	<bean id="FoodDAO" class="com.seoul.DAO.FoodDAO">
+		<property name="sqlSessionTemplate" ref="sqlSession" />
+	</bean>
+	
+	<bean id="TravelDAO" class="com.seoul.DAO.TravelDAO">
+		<property name="sqlSessionTemplate" ref="sqlSession" />
+	</bean>
+	<bean id="BoardDAO" class="com.seoul.DAO.BoardDAO">
+		<property name="sqlSessionTemplate" ref="sqlSession" />
+	</bean>
+    	<!-- 만들어진 서비스 클래스를 자동 주입하기 위한 bean 선언 -->
+	<bean id="hotelS"	class="com.seoul.Service.HotelService" /> 
+	<bean id="mainS"	class="com.seoul.Service.MainService" />
+	<bean id="foodS"	class="com.seoul.Service.FoodService" />
+	<bean id="travelS"	class="com.seoul.Service.TravelService" />
+	<bean id="boardS"	class="com.seoul.Service.BoardService" /> 
+		<!-- NaverLoginBO Class에 대한 Bean설정 추가 -->
+	<bean id="naverLoginBO" class="com.seoul.Service.NaverLoginBO" />
+	
+		<!-- 	사용자 뷰로 사용할 클래스를 bean 선언 -->
+	<bean id="download" class="com.seoul.Util.DownloadView" />
+	
+</beans>

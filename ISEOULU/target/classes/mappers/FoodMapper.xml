@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="food">
+		
+	<sql id="ViewEnd">
+		BASETBL, FOODINFOTBL, FOODINTROTBL 
+			where
+ 				BASETBL.CONTENTID = FOODINFOTBL.CONTENTID AND BASETBL.CONTENTID = FOODINTROTBL.CONTENTID
+ 				AND BASETBL.MAPX != 9999 AND BASETBL.MAPY !=9999 AND FIRSTIMAGE != 'empty' AND
+ 				BASETBL.CONTENTID 
+	</sql>
+	
+	<sql id="round"><!-- 여러번 사용되는 커리문을 sql로 지정 -->
+		(
+			 select rownum as rno, t.* from
+	     (SELECT mapy, mapx, contentid, contenttypeid, title, firstimage, tel, addr1, siguncode
+	         , SQRT( POWER(( #{MY} - mapy) * 110979.309, 2)
+	               + POWER(( #{MX} - mapx) *  88907.949, 2)
+	               ) round
+	      FROM basetbl
+	         , (SELECT     #{MY} v_x    
+	                 ,    #{MX} v_y    
+	                 , 110979.309     r_x    
+	                 ,  88907.949     r_y    
+	                 ,  2000.000     v_z    
+	              FROM dual
+	            )
+	     WHERE SQRT( POWER((v_x - mapy) * r_x, 2)
+	               + POWER((v_y - mapx) * r_y, 2)
+	               ) <![CDATA[ <= ]]> v_z
+	       AND mapy BETWEEN v_x - v_z / r_x AND v_x + v_z / r_x
+	       AND mapx BETWEEN v_y - v_z / r_y AND v_y + v_z / r_y
+	       and contentid != #{CON} and firstimage != 'empty'
+	     ORDER BY round)t)
+	</sql>
+	
+	
+	<!-- 1. 시군구의 코드로 호텔 갯수를 가져옮,	데이터가 없을 경우 데이터가 없다고 알려줌. -->
+	<select id="foodCount" parameterType="int" resultType="int">
+		select count(*) as cnt 
+			from basetbl 
+		where CONTENTTYPEID = 39 and mapx !=9999 and mapy !=9999 and firstimage != 'empty' 
+			and siguncode = #{sgCode}
+	</select>
+	
+	<!-- 2. 데이터가 있을 경우 시군구의 코드로 호텔리스트 목록을 가져옮 -->
+	<select id="foodList" parameterType="hmap" resultType="fvo" >
+		select 
+			* 
+		from (
+			select 
+				rownum as rno, t.* 
+			from
+				(select 
+					* 
+				 from 
+				 	basetbl 
+				 where 
+				 	CONTENTTYPEID = 39 
+					and mapx !=9999 
+					and mapy !=9999 
+					and firstimage != 'empty' 
+					and siguncode = #{sgCode} 
+				order by firstimage desc)t)
+		where rno BETWEEN #{start} and #{end} 
+	</select>
+	
+	
+	<!-- 3. 호텔 상세보기전 정보가 있는지 확인 -->
+	<select id="foodViewCheck" parameterType="int" resultType="int">
+		SELECT
+			count(*)
+		from
+			<include refid="ViewEnd"/>	
+		 = #{contentid}	
+	</select>
+	
+	<!-- 4-1호텔 상세정보 출력 전 readcount +1 증가 -->
+	<update id="updateReadcount" parameterType="int">
+		UPDATE
+			BASETBL
+		SET
+			READCOUNT = READCOUNT+1
+		WHERE CONTENTID = #{contentid}	
+	</update>
+	
+	<!-- 4-2. 호텔 상세정보 출력	-->
+	<select id="foodView" parameterType="int" resultType="fvo">
+		SELECT
+			*
+		from
+			<include refid="ViewEnd"/> 
+			 = #{contentid}	
+	</select>
+	
+	<!-- 5. 호텔 인근지역 상세 정보 출력 		다음지도 오른쪽 리스트 -->
+	<select id="roundList" parameterType="map" resultType="fvo">
+		select * from <include refid="round" />
+	</select>
+	<!-- 6-1. 관광 리스트 	좌표용 데이터-->
+	<select id="tList" parameterType="map" resultType="fvo">
+		select * from <include refid="round" /> where contenttypeid in (12,14,15,25,28)
+	</select>
+	<!-- 6-2. 호텔 리스트	좌표용 데이터-->
+	<select id="hList" parameterType="map" resultType="fvo">
+		select * from <include refid="round" /> where contenttypeid = 32
+	</select>
+	<!-- 6-3. 음식 리스트 	좌표용 데이터-->
+	<select id="fList" parameterType="map" resultType="fvo">
+		select * from <include refid="round" /> where contenttypeid = 39
+	</select>
+	
+	
+</mapper>		

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="main">
+	
+	<select id="dynamicSQL" parameterType="hmap" resultType="mvo">
+		SELECT * FROM   
+			(SELECT rownum as rno, B.* FROM
+				(SELECT * FROM BASETBL WHERE FIRSTIMAGE != 'empty' 
+    			AND MAPX !=9999 AND MAPY !=9999  AND READCOUNT != 'empty'
+    			<if test="SGCODE lt 1">
+    				AND SIGUNCODE != 0
+    				<if test="TYPE eq 'TRAVEL'"> AND  CONTENTTYPEID IN (12,15) </if>
+    				<if test="TYPE eq 'HOTEL'">	 AND  CONTENTTYPEID = 32 </if>
+    				<if test="TYPE eq 'FOOD'">	 AND  CONTENTTYPEID = 39 </if>
+    				<if test="TYPE eq 'ALL'">	 AND  CONTENTTYPEID IN(12,15,32,39) </if>
+    			</if> 
+    			<if test="SGCODE gt 0">
+    				AND SIGUNCODE = #{SGCODE}
+    				<if test="TYPE eq 'TRAVEL'"> AND  CONTENTTYPEID IN (12,15) </if>
+    				<if test="TYPE eq 'HOTEL'">	 AND  CONTENTTYPEID = 32 </if>
+    				<if test="TYPE eq 'FOOD'">	 AND  CONTENTTYPEID = 39 </if>
+    				<if test="TYPE eq 'ALL'">	 AND  CONTENTTYPEID IN(12,15,32,39) </if>
+    			</if> 
+    			ORDER BY to_number(READCOUNT) DESC)B
+    		)
+    		WHERE
+    			<if test="TYPE neq 'ALL'">
+    			 	rno BETWEEN 1 AND 5
+    			</if>
+    			<if test="TYPE eq 'ALL'">
+    			 	rno BETWEEN 1 AND 50
+    			</if> 	
+	</select>
+	
+	
+	
+	<select id="detailCheck" parameterType="hmap" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM basetbl b, 
+			<if test="TYPE eq 'TRAVEL'">
+				 travelinfotbl t where b.contentid = t.contentid
+			</if>
+			<if test="TYPE eq 'HOTEL'">
+				 stayinfotbl s where b.contentid = s.contentid
+			</if>
+			<if test="TYPE eq 'FOOD'">
+				 foodinfotbl f where b.contentid = f.contentid
+			</if>
+		AND b.CONTENTID = #{CONTENTID}
+	</select>
+	
+	<select id="detailView" parameterType="hmap" resultType="mvo">
+		SELECT
+			*
+		FROM basetbl b, 
+			<if test="TYPE eq 'TRAVEL'">
+				 travelinfotbl t where b.contentid = t.contentid
+			</if>
+			<if test="TYPE eq 'HOTEL'">
+				 stayinfotbl s where b.contentid = s.contentid
+			</if>
+			<if test="TYPE eq 'FOOD'">
+				 foodinfotbl f where b.contentid = f.contentid
+			</if>
+		AND b.CONTENTID = #{CONTENTID}
+	</select>
+	
+	
+	<!-- 타이틀로 컨텐트id, typeid를  알아내는 질의 명령. -->
+	<select id="getContentid" parameterType="string" resultType="hmap">
+		select READCOUNT, 
+			TITLE, 
+			CONTENTID,
+			CONTENTTYPEID 
+			from
+		 basetbl where title
+		  like '%' || #{title} ||'%' 
+		 and readcount != 'empty' and rownum = 1 order BY readcount desc
+	</select>
+	
+	<select id="getOverView" parameterType="hmap" resultType="mvo">
+		SELECT * FROM BASETBL B,
+			<if test="CONTENTTYPEID lt 32">
+				TRAVELINFOTBL T WHERE B.CONTENTID = T.CONTENTID
+			</if>
+			
+			<if test="CONTENTTYPEID == 32">
+				STAYINFOTBL S WHERE B.CONTENTID = S.CONTENTID
+			</if>
+			
+			<if test="CONTENTTYPEID == 39">
+				FOODINFOTBL F WHERE B.CONTENTID = F.CONTENTID
+			</if>
+			
+			AND B.CONTENTID = #{CONTENTID}
+	</select>
+	
+</mapper>	

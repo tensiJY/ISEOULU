@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC 
+	"-//mybatis.org//DTD Config 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- myBatis 운영 환경설정 -->
+	<settings>	
+		<setting name="cacheEnabled" 		value="false" />
+		<setting name="useGeneratedKeys" 	value="true" />
+		<setting name="defaultExecutorType" value="REUSE" />
+	</settings>
+	<!-- myBatis에서 사용할 클래스의 별칭을 부여한다. -->
+	<!-- 기록할 형태의 별칭을 지정하는 부분이다. -->
+	<typeAliases>
+		<typeAlias alias="int"		type="java.lang.Integer" />
+		<typeAlias alias="String"	type="java.lang.String"/>
+		<typeAlias alias="hmap"		type="java.util.HashMap"/>
+		<!-- 주영 -->
+		<typeAlias alias="hvo"		type="com.seoul.VO.HotelVO"/>
+		<typeAlias alias="mvo"		type="com.seoul.VO.MainVO"/>
+		<!-- 주형 -->
+		<typeAlias alias="tvo"		type="com.seoul.VO.TravelVO"/> 
+		<!-- 태종 -->
+		<typeAlias alias="fvo"		type="com.seoul.VO.FoodVO"/>
+		<typeAlias alias="bvo"		type="com.seoul.VO.BoardVO"/>
+	</typeAliases>
+	<!-- SQL 파일을 등록할 xml 파일을 저장한다. -->
+	<!-- 만들어진 SQL 파일을 등록하는 부분이다. -->
+	<!-- mappers 폴더에 넣으세요 
+		 ~Mapper로 끝나면 됩니다.-->
+</configuration>
