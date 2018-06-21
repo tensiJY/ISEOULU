@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="CrawlingJob">
+
+	<insert id="insertJob" parameterType="cvo" >
+		INSERT INTO tbl_getjob
+		(j_no, j_title,j_body, j_link)
+		VALUES
+		(
+			(select nvl(max(j_no), 0)+1 from tbl_getjob), 
+			#{jtitle}, 
+			#{jbody},
+			#{jlink}
+		)
+	</insert>
+	
+	<select id="totalCnt" resultType="int">
+		
+		select count(j_no) from tbl_getjob where j_isShow = 'Y'
+	
+	</select>
+	
+	<!-- 	private String jtitle;
+	private String jlink;
+	private String jbody;
+	private String jisshow;
+	
+	private Date jcreDate; -->
+	
+	<select id="getJobList" parameterType="java.util.Map" resultType="cvo">
+		
+		select * from (
+			select rownum as rno,  j.* from 
+			(select j_no as jno, j_title as jtitle, j_body as jbody,
+			j_link as jlink, j_creDate as jcreDate from tbl_getjob order by jno desc) j) 
+			 where rno between #{start} and #{end} 
+	</select>
+
+</mapper>	

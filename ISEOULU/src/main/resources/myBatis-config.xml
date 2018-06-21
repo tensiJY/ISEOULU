@@ -23,6 +23,8 @@
 		<!-- 태종 -->
 		<typeAlias alias="fvo"		type="com.seoul.VO.FoodVO"/>
 		<typeAlias alias="bvo"		type="com.seoul.VO.BoardVO"/>
+		
+		<typeAlias alias="cvo"		type="com.crawling.web.CrawlingVO"/>
 	</typeAliases>
 	<!-- SQL 파일을 등록할 xml 파일을 저장한다. -->
 	<!-- 만들어진 SQL 파일을 등록하는 부분이다. -->

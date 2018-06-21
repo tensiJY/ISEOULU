@@ -15,7 +15,7 @@
 	ul li a.now {color:#fff;background-color:#f40;border:3px solid #f40;}  
 	ul li a:hover, ul li a:focus {color:#fff;border:3px solid #558ed5;background-color:#558ed5;}  
 	</style>
-		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=fdc7e7b044cb2414d704eacb4a72844b"></script>
+		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f25b060d2f4516f13c808ae5cc65219c"></script>
 	<script type="text/javascript">
 		$(document).ready(function(){
 			$().UItoTop({ easingType: 'easeOutQuart' });

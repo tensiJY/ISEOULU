@@ -69,4 +69,9 @@
 		<!-- 	사용자 뷰로 사용할 클래스를 bean 선언 -->
 	<bean id="download" class="com.seoul.Util.DownloadView" />
 	
+	<!-- 크로링 -->
+	<context:component-scan base-package="com.crawling.web"/>
+	
+	
+	
 </beans>
